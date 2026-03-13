@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCP Spec Diff — 2026-01-23 → draft · Tech Council Review</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-hover: #21253a;
+    --border: #2e3348;
+    --text: #e2e6f0;
+    --text-muted: #8b90a0;
+    --text-dim: #5a5f72;
+    --critical: #D72C0D;
+    --critical-bg: rgba(215,44,13,0.12);
+    --high: #E07D10;
+    --high-bg: rgba(224,125,16,0.12);
+    --medium: #c8920a;
+    --medium-bg: rgba(200,146,10,0.12);
+    --low: #2C6ECB;
+    --low-bg: rgba(44,110,203,0.12);
+    --additive: #008060;
+    --additive-bg: rgba(0,128,96,0.12);
+    --pill-active-bg: #2e3f6f;
+    --pill-active-border: #5b7de0;
+    --code-bg: #0d1021;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(180deg, #131929 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  header h1 .arrow {
+    color: var(--text-dim);
+    font-weight: 300;
+    margin: 0 6px;
+  }
+  header h1 .version {
+    font-family: var(--mono);
+    font-size: 22px;
+  }
+  header h1 .subtitle {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-top: 6px;
+    letter-spacing: 0;
+  }
+  header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 680px;
+    line-height: 1.65;
+  }
+  header p strong {
+    color: var(--text);
+  }
+  .council-notice {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px dashed rgba(200,146,10,0.35);
+    border-radius: 6px;
+    background: rgba(200,146,10,0.05);
+    font-size: 13px;
+    color: #b89030;
+    max-width: 680px;
+    line-height: 1.6;
+  }
+
+  /* ── Filter Bar ── */
+  .filter-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .filter-bar-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-dim);
+    margin-right: 2px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .pill:hover {
+    border-color: #4a5070;
+    color: var(--text);
+    background: var(--surface-hover);
+  }
+  .pill.active {
+    background: var(--pill-active-bg);
+    border-color: var(--pill-active-border);
+    color: #a8c0ff;
+  }
+  .pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Main ── */
+  main {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 0 24px;
+  }
+  .results-header {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    padding-left: 2px;
+  }
+  .results-header span {
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  /* ── Cards ── */
+  .change-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .card:hover {
+    border-color: #3a4060;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .card-header:hover {
+    background: var(--surface-hover);
+  }
+  .card-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 22px;
+  }
+  .severity-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .badge-critical { background: var(--critical-bg); color: var(--critical); }
+  .badge-high     { background: var(--high-bg);     color: var(--high); }
+  .badge-medium   { background: var(--medium-bg);   color: var(--medium); }
+  .badge-low      { background: var(--low-bg);      color: var(--low); }
+  .badge-additive { background: var(--additive-bg); color: var(--additive); }
+
+  /* ── Breaking badge ── */
+  .breaking-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .breaking-badge.is-breaking {
+    background: rgba(215,44,13,0.08);
+    color: #c44;
+    border: 1px solid rgba(215,44,13,0.2);
+  }
+  .breaking-badge.not-breaking {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  /* ── Backport tag ── */
+  .backport-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .backport-recommended {
+    border: 1px solid rgba(0,128,96,0.4);
+    background: rgba(0,128,96,0.08);
+    color: #00a070;
+  }
+  .backport-consider {
+    border: 1px dashed rgba(200,146,10,0.45);
+    background: rgba(200,146,10,0.06);
+    color: #a07820;
+  }
+  .backport-no {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: var(--text-dim);
+  }
+
+  .transport-badges {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .transport-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .card-pr-links {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .pr-link {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: #6a9fd8;
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(106,159,216,0.2);
+    background: rgba(106,159,216,0.06);
+  }
+  .pr-link:hover {
+    background: rgba(106,159,216,0.14);
+    border-color: rgba(106,159,216,0.4);
+    color: #9dc0e8;
+  }
+  .chevron {
+    color: var(--text-dim);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+  .card.expanded .chevron {
+    transform: rotate(180deg);
+  }
+
+  /* ── Card Detail ── */
+  .card-detail {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 18px 16px 18px 50px;
+    background: #161923;
+  }
+  .card.expanded .card-detail {
+    display: block;
+  }
+  .card-detail p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .card-detail pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #c9d1e0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .card-detail pre .comment {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ── No results ── */
+  .no-results {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .no-results.visible { display: block; }
+
+  /* ── Footer ── */
+  footer {
+    max-width: 900px;
+    margin: 48px auto 32px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  footer a {
+    color: #6a9fd8;
+    text-decoration: none;
+  }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Universal Commerce Protocol · Tech Council Review</div>
+    <h1>
+      <span class="version">2026-01-23</span>
+      <span class="arrow">→</span>
+      <span class="version">draft</span>
+      <span class="subtitle">Pre-version-cut backport candidates</span>
+    </h1>
+    <p>
+      21 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>, documented from the perspective of client (platform) implementations.
+    </p>
+    <div class="council-notice">
+      Each change below is open for backport consideration into <strong>2026-01-23</strong> before the next version cut. Breaking status, severity, and affected transports are provided as inputs to that decision. This is a read-only briefing.
+    </div>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <div class="filter-bar-inner">
+    <div class="filter-group">
+      <span class="filter-label">Severity</span>
+      <button class="pill active" data-filter="severity" data-value="all">All</button>
+      <button class="pill" data-filter="severity" data-value="critical">
+        <span class="dot" style="background:var(--critical)"></span>Critical
+      </button>
+      <button class="pill" data-filter="severity" data-value="high">
+        <span class="dot" style="background:var(--high)"></span>High
+      </button>
+      <button class="pill" data-filter="severity" data-value="medium">
+        <span class="dot" style="background:var(--medium)"></span>Medium
+      </button>
+      <button class="pill" data-filter="severity" data-value="low">
+        <span class="dot" style="background:var(--low)"></span>Low
+      </button>
+      <button class="pill" data-filter="severity" data-value="additive">
+        <span class="dot" style="background:var(--additive)"></span>Additive
+      </button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Transport</span>
+      <button class="pill active" data-filter="transport" data-value="all">All</button>
+      <button class="pill" data-filter="transport" data-value="REST">REST</button>
+      <button class="pill" data-filter="transport" data-value="MCP">MCP</button>
+      <button class="pill" data-filter="transport" data-value="Embedded">Embedded</button>
+      <button class="pill" data-filter="transport" data-value="Tooling">Tooling</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="results-header"><span id="visible-count">21</span> of 21 changes</div>
+  <div class="change-list" id="change-list"></div>
+  <div class="no-results" id="no-results">No changes match the current filters.</div>
+</main>
+
+<footer>
+  <span>Generated 2026-03-13 · <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank">github.com/Universal-Commerce-Protocol/ucp</a></span>
+  <span>Comparing <code>release/2026-01-23</code> → <code>main</code> (draft)</span>
+</footer>
+
+<script>
+const CHANGES = [
+  {
+    id: 1,
+    severity: "critical",
+    breaking: true,
+    backport: "no",
+    transports: ["REST"],
+    title: "UCP-Agent header required on all requests",
+    prs: ["#120"],
+    summary: "Every HTTP request must now include a UCP-Agent header. Requests missing this header receive HTTP 400.",
+    example: `<span class="comment">// 2026-01-23 client — missing header</span>
+POST /checkouts HTTP/1.1
+Content-Type: application/json
+User-Agent: MyApp/1.0
+{ ... }
+
+<span class="comment">// Draft server response</span>
+HTTP/1.1 400 Bad Request
+{ "error": "Missing required header: UCP-Agent" }
+
+<span class="comment">// Fix: add header to every request</span>
+UCP-Agent: profile="https://platform.example/profile"`
+  },
+  {
+    id: 2,
+    severity: "critical",
+    breaking: true,
+    backport: "no",
+    transports: ["REST", "MCP"],
+    title: "Version negotiation: strict enforcement + HTTP 422",
+    prs: ["#200"],
+    summary: "Servers now enforce version compatibility at the gate and return HTTP 422 instead of a 200 with body-level error.",
+    example: `<span class="comment">// 2026-01-23 client sends</span>
+{ "ucp": { "version": "2026-01-23", ... } }
+
+<span class="comment">// Old behavior (2026-01-23 server): HTTP 200, version_unsupported in body</span>
+<span class="comment">// Draft server: HTTP 422 — pre-negotiation gate failure</span>
+HTTP/1.1 422 Unprocessable Entity
+{ "error": "version_unsupported" }
+
+<span class="comment">// Client checking if (response.status === 200) misses this entirely</span>`
+  },
+  {
+    id: 3,
+    severity: "critical",
+    breaking: true,
+    backport: "no",
+    transports: ["REST"],
+    title: "Cart not-found: 404 removed, returns 200 + error_response",
+    prs: ["#216"],
+    summary: "Cart lookup no longer returns 404. A missing cart returns HTTP 200 with a structured error_response body.",
+    example: `<span class="comment">// 2026-01-23 client</span>
+if (response.status === 404) { handleNotFound(); } <span class="comment">// dead code path</span>
+
+<span class="comment">// Draft server returns</span>
+HTTP/1.1 200 OK
+{
+  "ucp": { "version": "draft", "status": "error" },
+  "messages": [{ "severity": "unrecoverable", "content": "Cart not found" }]
+}
+<span class="comment">// Client processes this as a valid cart — likely crash on missing fields</span>`
+  },
+  {
+    id: 4,
+    severity: "critical",
+    breaking: true,
+    backport: "no",
+    transports: ["MCP"],
+    title: "MCP method results now oneOf [resource, error_response]",
+    prs: ["#216"],
+    summary: "MCP method results are now a discriminated union. Clients that assume all results are the resource type will crash on error responses.",
+    example: `<span class="comment">// 2026-01-23 MCP client expects</span>
+{ "id": "...", "line_items": [...], "totals": [...] }
+
+<span class="comment">// Draft server may return</span>
+{
+  "ucp": { "version": "draft", "status": "error" },
+  "messages": [{ "severity": "unrecoverable", ... }]
+}
+<span class="comment">// Client parser crashes on missing required checkout fields</span>`
+  },
+  {
+    id: 5,
+    severity: "high",
+    breaking: true,
+    backport: "no",
+    transports: ["REST", "MCP"],
+    title: "ucp.status: \"error\" discriminator on 200 responses",
+    prs: ["#216"],
+    summary: "HTTP 200 no longer guarantees a valid resource. Clients must check ucp.status before reading the response body.",
+    example: `<span class="comment">// 2026-01-23 client — never checks ucp.status</span>
+const checkout = response.body; <span class="comment">// assumed valid</span>
+
+<span class="comment">// Draft may return HTTP 200 with:</span>
+{ "ucp": { "status": "error" }, "messages": [...] }
+<span class="comment">// Client reads this as a checkout — silent data corruption</span>`
+  },
+  {
+    id: 6,
+    severity: "medium",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP"],
+    title: "New `unrecoverable` severity value",
+    prs: ["#216"],
+    summary: "A new message severity value unrecoverable is introduced. Exhaustive switch statements on severity will miss it.",
+    example: `<span class="comment">// 2026-01-23 client switch</span>
+switch (msg.severity) {
+  case "recoverable":           retry();    break;
+  case "requires_buyer_input":  escalate(); break;
+  case "requires_buyer_review": review();   break;
+  <span class="comment">// "unrecoverable" — falls through, no handler</span>
+}`
+  },
+  {
+    id: 7,
+    severity: "high",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "Profile must serve Cache-Control: public, max-age ≥ 60",
+    prs: ["docs"],
+    summary: "Platform profiles must now be served with permissive Cache-Control. Profiles served as private or no-cache will be rejected by draft implementations.",
+    example: `<span class="comment">// 2026-01-23 platform profile endpoint (non-compliant)</span>
+HTTP/1.1 200 OK
+Cache-Control: private, no-cache
+{ "name": "com.example.platform", ... }
+
+<span class="comment">// Draft: MUST NOT be served with private, no-store, or no-cache</span>
+
+<span class="comment">// Fix: serve with</span>
+Cache-Control: public, max-age=3600`
+  },
+  {
+    id: 8,
+    severity: "low",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST"],
+    title: "Checkout update body sends `id` — now expected omitted",
+    prs: ["#145"],
+    summary: "The id field was previously required in the checkout update request body. Draft marks it as omit — strict servers reject it.",
+    example: `<span class="comment">// 2026-01-23 client — sends id in body (was required)</span>
+PATCH /checkouts/ch_123
+{ "id": "ch_123", "line_items": [...] }
+
+<span class="comment">// Draft schema: id.ucp_request.update transitions from "required" → "omit"</span>
+<span class="comment">// Strict server rejects extra field</span>
+HTTP/1.1 422 Unprocessable Entity
+{ "error": "Unexpected field: id" }`
+  },
+  {
+    id: 9,
+    severity: "medium",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "Profile fetching: no redirects, HTTPS only",
+    prs: ["docs"],
+    summary: "Profile URLs must use HTTPS. HTTP URLs must be rejected. 3xx redirects must not be followed.",
+    example: `<span class="comment">// 2026-01-23 client — follows redirect silently</span>
+GET http://platform.example/.well-known/ucp  <span class="comment">← HTTP, not HTTPS</span>
+→ 301 Redirect to https://...
+
+<span class="comment">// Draft: MUST reject non-HTTPS URLs, MUST NOT follow 3xx</span>
+<span class="comment">// Client receiving HTTP profile URL must abort request</span>`
+  },
+  {
+    id: 10,
+    severity: "low",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP"],
+    title: "adjustment.amount now minimum: 0 (was unconstrained)",
+    prs: ["#246"],
+    summary: "The amount field in adjustment objects now enforces minimum: 0. Negative values used to represent credits are now schema-invalid.",
+    example: `<span class="comment">// 2026-01-23: adjustment.amount had no minimum</span>
+{ "type": "credit", "amount": -500 }  <span class="comment">// negative = credit, was valid</span>
+
+<span class="comment">// Draft: amount.json enforces minimum: 0</span>
+<span class="comment">// Schema validation rejects negative values</span>
+{ "type": "credit", "amount": -500 }  <span class="comment">// → validation error</span>`
+  },
+  {
+    id: 11,
+    severity: "low",
+    breaking: true,
+    backport: "no",
+    transports: ["Tooling"],
+    title: "Service transport files renamed",
+    prs: ["#154"],
+    summary: "The service transport schema files have been renamed with transport-specific prefixes. Any tooling referencing old filenames will get 404.",
+    example: `<span class="comment">// 2026-01-23 tooling references</span>
+source/services/shopping/openapi.json     → 404
+source/services/shopping/openrpc.json     → 404
+source/services/shopping/embedded.json   → 404
+
+<span class="comment">// Draft paths</span>
+source/services/shopping/rest.openapi.json
+source/services/shopping/mcp.openrpc.json
+source/services/shopping/embedded.openrpc.json`
+  },
+  {
+    id: 12,
+    severity: "low",
+    breaking: false,
+    backport: "recommended",
+    transports: ["REST", "MCP"],
+    title: "New standard error codes unhandled",
+    prs: ["#147"],
+    summary: "Two new standard error codes were added. Exhaustive switch statements on message.code will silently drop them.",
+    example: `<span class="comment">// 2026-01-23 client switch on message.code</span>
+switch (msg.code) {
+  case "missing":           ...
+  case "invalid":           ...
+  case "payment_declined":  ...
+  <span class="comment">// "out_of_stock", "address_undeliverable" — unhandled</span>
+}`
+  },
+  {
+    id: 13,
+    severity: "low",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP"],
+    title: "Cart-to-checkout discount codes must be forwarded",
+    prs: ["#246"],
+    summary: "Applied discount codes on a cart must now be explicitly forwarded when converting to checkout. The server may not re-apply them automatically.",
+    example: `<span class="comment">// Cart with applied discount codes</span>
+{ "discounts": { "codes": ["SUMMER20"] } }
+
+<span class="comment">// 2026-01-23 client converts cart → checkout without forwarding codes</span>
+POST /checkouts { "cart_id": "cart_123" }  <span class="comment">// codes not forwarded</span>
+
+<span class="comment">// Draft: MUST carry applied codes forward</span>
+<span class="comment">// Server may not re-apply them automatically</span>`
+  },
+  {
+    id: 14,
+    severity: "low",
+    breaking: true,
+    backport: "no",
+    transports: ["Tooling"],
+    title: "discount.json `$defs/checkout` key renamed",
+    prs: ["#96"],
+    summary: "The checkout definition key inside discount.json has been renamed to the fully-qualified capability name.",
+    example: `<span class="comment">// 2026-01-23 schema reference</span>
+discount.json#/$defs/checkout  → undefined in draft
+
+<span class="comment">// Draft renamed to</span>
+discount.json#/$defs/dev.ucp.shopping.checkout`
+  },
+  {
+    id: 15,
+    severity: "additive",
+    breaking: false,
+    backport: "recommended",
+    transports: ["Embedded"],
+    title: "ec_color_scheme query parameter added (embedded config)",
+    prs: ["#157"],
+    summary: "A new optional query parameter allows embedded checkout to receive a preferred color scheme. No action required for 2026-01-23 clients.",
+    example: `<span class="comment">// New optional query parameter on embedded checkout</span>
+?ec_color_scheme=dark
+
+<span class="comment">// 2026-01-23 clients can ignore this — no break</span>
+<span class="comment">// New: embedded_config.json returns color_scheme: ["light", "dark"]</span>`
+  },
+  {
+    id: 16,
+    severity: "additive",
+    breaking: false,
+    backport: "recommended",
+    transports: ["REST", "MCP"],
+    title: "Optional request/response signing headers",
+    prs: ["#156"],
+    summary: "Three new optional headers enable request/response integrity verification. REST: <code>Signature</code>, <code>Signature-Input</code>, <code>UCP-Content-Digest-JCS</code> on both requests and responses. MCP: new optional <code>meta.signature</code> (detached JWS), <code>meta.idempotency-key</code>, and <code>meta.ucp-agent</code> fields. All <code>required: false</code> — 2026-01-23 clients can ignore entirely.",
+    example: `<span class="comment">// REST — new optional signing headers on request</span>
+POST /checkouts HTTP/1.1
+UCP-Agent: profile="https://platform.example/profile"
+Signature-Input: sig1=("@method" "@target-uri" "content-digest");created=1736600000
+Signature: sig1=:base64encodedvalue==:
+UCP-Content-Digest-JCS: sha-256=:body-content-hash==:
+
+<span class="comment">// REST — server echoes signing headers in response</span>
+HTTP/1.1 200 OK
+Signature-Input: sig1=("@status" "content-digest");created=1736600001
+Signature: sig1=:responsebase64==:
+
+<span class="comment">// MCP — new optional meta fields</span>
+{
+  "id": 1, "method": "createCheckout",
+  "meta": {
+    "ucp-agent": "profile=\"https://platform.example/profile\"",
+    "idempotency-key": "idem_abc123",
+    "signature": "detached-jws-value"
+  },
+  "params": { ... }
+}
+
+<span class="comment">// 2026-01-23 clients that omit all signing fields — no break</span>`
+  },
+  {
+    id: 17,
+    severity: "high",
+    breaking: true,
+    backport: "consider",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "Eligibility claims & provisional discounts",
+    prs: ["#250"],
+    summary: "A new <code>context.eligibility</code> array lets platforms assert buyer eligibility claims (e.g. staff, student, loyalty tier). <code>discount.applied_discount</code> gains <code>provisional: bool</code> and <code>eligibility: string</code> fields. <code>discount.amount</code> type changed from <code>integer</code> → <code>$ref: types/amount.json</code>. New error code <code>invalid_eligibility</code> blocks checkout completion if unverified. Breaking for clients using the discount extension — must handle new fields and the blocking error.",
+    example: `<span class="comment">// Draft server returns applied discount with new fields</span>
+{
+  "discounts": {
+    "applied_discounts": [{
+      "code": "STAFF20",
+      "provisional": true,         <span class="comment">// NEW — unverified at checkout time</span>
+      "eligibility": "staff"       <span class="comment">// NEW — claim requiring verification</span>
+    }]
+  }
+}
+
+<span class="comment">// 2026-01-23 client ignores unknown fields — discount appears applied</span>
+<span class="comment">// But checkout complete may return:</span>
+{
+  "messages": [{
+    "code": "invalid_eligibility",   <span class="comment">// NEW error code — no handler in client</span>
+    "severity": "unrecoverable"
+  }]
+}
+<span class="comment">// Checkout blocked — client has no recovery path for this code</span>`
+  },
+  {
+    id: 18,
+    severity: "additive",
+    breaking: false,
+    backport: "recommended",
+    transports: ["REST", "MCP"],
+    title: "Optional `signals` field on cart and checkout",
+    prs: ["#203"],
+    summary: "A new optional <code>signals</code> object on cart and checkout (request and response) carries platform-asserted context: <code>buyer_ip</code> (IPv4/IPv6), <code>user_agent</code> (HTTP UA string), extensible via reverse-domain keys. Platform-asserted only — not editable by business logic. 2026-01-23 clients can ignore entirely.",
+    example: `<span class="comment">// Checkout create with optional signals</span>
+POST /checkouts HTTP/1.1
+{
+  "context": { "locale": "en-CA", "currency": "CAD" },
+  "signals": {
+    "buyer_ip": "203.0.113.42",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+  },
+  "line_items": [...]
+}
+
+<span class="comment">// 2026-01-23 clients that omit signals — no break</span>
+POST /checkouts HTTP/1.1
+{ "context": { ... }, "line_items": [...] }
+
+<span class="comment">// Server response may include signals — 2026-01-23 clients ignore unknown fields</span>`
+  },
+  {
+    id: 19,
+    severity: "low",
+    breaking: false,
+    backport: "consider",
+    transports: ["REST", "MCP"],
+    title: "Fulfillment method `id`/`type` optional on update",
+    prs: ["#143", "#196"],
+    summary: "On update operations, <code>fulfillment_method.id</code> transitions from <code>required</code> → <code>optional</code>, and <code>fulfillment_method.type</code> transitions from <code>omit</code> → <code>optional</code>. Non-breaking: 2026-01-23 clients sending both fields continue to work. Previously-rejected payloads (missing <code>id</code>, or providing <code>type</code>) will now be accepted by draft servers.",
+    example: `<span class="comment">// 2026-01-23: id required on fulfillment_method update</span>
+PATCH /checkouts/ch_123
+{
+  "fulfillment_method": {
+    "id": "ship_standard",        <span class="comment">// was required</span>
+    "handle": "standard-shipping"
+  }
+}
+
+<span class="comment">// Draft: id is now optional</span>
+PATCH /checkouts/ch_123
+{
+  "fulfillment_method": {
+    "handle": "standard-shipping"  <span class="comment">// id may be omitted</span>
+  }
+}
+
+<span class="comment">// type is now accepted on update (was omit/disallowed before)</span>
+{
+  "fulfillment_method": {
+    "type": "shipping",
+    "handle": "standard-shipping"
+  }
+}`
+  },
+  {
+    id: 20,
+    severity: "additive",
+    breaking: false,
+    backport: "recommended",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "`intent` field added to context",
+    prs: ["#95"],
+    summary: "A new optional string field <code>intent</code> on <code>context.json</code> allows platforms to pass buyer purchase intent (e.g. <code>gift</code>, <code>subscription</code>, <code>resale</code>). Downstream business logic can use it for personalization or eligibility decisions. No required field changes — 2026-01-23 clients that don't send <code>intent</code> are unaffected.",
+    example: `<span class="comment">// Draft: context object with intent</span>
+{
+  "context": {
+    "locale": "en-CA",
+    "currency": "CAD",
+    "intent": "gift"              <span class="comment">// NEW optional field</span>
+  }
+}
+
+<span class="comment">// 2026-01-23 context without intent — no break</span>
+{
+  "context": {
+    "locale": "en-CA",
+    "currency": "CAD"
+  }
+}`
+  },
+  {
+    id: 21,
+    severity: "additive",
+    breaking: false,
+    backport: "recommended",
+    transports: ["Tooling"],
+    title: "`available_instruments` added to payment handler",
+    prs: ["#187"],
+    summary: "A new optional array field <code>available_instruments</code> on <code>payment_handler.json</code> lets a handler declare which instrument types it supports (e.g. <code>card</code>, <code>wallet</code>, <code>bank_redirect</code>). When absent, all instruments are assumed available — backward compatible. Introduces a new type <code>available_payment_instrument.json</code>.",
+    example: `<span class="comment">// payment_handler.json — 2026-01-23 compatible (no available_instruments)</span>
+{
+  "name": "com.example.payment-handler",
+  "version": "2026-01-23"
+}
+
+<span class="comment">// With available_instruments (new optional field in draft)</span>
+{
+  "name": "com.example.payment-handler",
+  "version": "draft",
+  "available_instruments": [
+    { "type": "card" },
+    { "type": "wallet", "id": "com.example.wallet" }
+  ]
+}
+
+<span class="comment">// Handlers that omit available_instruments — no break</span>
+<span class="comment">// All instrument types assumed available when field is absent</span>`
+  }
+];
+
+const PR_URLS = {
+  "#95":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/95",
+  "#96":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/96",
+  "#120": "https://github.com/Universal-Commerce-Protocol/ucp/pull/120",
+  "#143": "https://github.com/Universal-Commerce-Protocol/ucp/pull/143",
+  "#145": "https://github.com/Universal-Commerce-Protocol/ucp/pull/145",
+  "#147": "https://github.com/Universal-Commerce-Protocol/ucp/pull/147",
+  "#154": "https://github.com/Universal-Commerce-Protocol/ucp/pull/154",
+  "#156": "https://github.com/Universal-Commerce-Protocol/ucp/pull/156",
+  "#157": "https://github.com/Universal-Commerce-Protocol/ucp/pull/157",
+  "#187": "https://github.com/Universal-Commerce-Protocol/ucp/pull/187",
+  "#196": "https://github.com/Universal-Commerce-Protocol/ucp/pull/196",
+  "#200": "https://github.com/Universal-Commerce-Protocol/ucp/pull/200",
+  "#203": "https://github.com/Universal-Commerce-Protocol/ucp/pull/203",
+  "#216": "https://github.com/Universal-Commerce-Protocol/ucp/pull/216",
+  "#246": "https://github.com/Universal-Commerce-Protocol/ucp/pull/246",
+  "#250": "https://github.com/Universal-Commerce-Protocol/ucp/pull/250",
+};
+
+let activeSeverity = "all";
+let activeTransport = "all";
+
+function matches(change) {
+  const severityOk = activeSeverity === "all" || change.severity === activeSeverity;
+  const transportOk = activeTransport === "all" || change.transports.includes(activeTransport);
+  return severityOk && transportOk;
+}
+
+function render() {
+  const list = document.getElementById("change-list");
+  const noResults = document.getElementById("no-results");
+  const counter = document.getElementById("visible-count");
+
+  const cards = list.querySelectorAll(".card");
+  let visible = 0;
+  cards.forEach(card => {
+    const show = matches({
+      severity: card.dataset.severity,
+      transports: card.dataset.transports.split(",")
+    });
+    card.style.display = show ? "" : "none";
+    if (show) visible++;
+  });
+
+  counter.textContent = visible;
+  noResults.classList.toggle("visible", visible === 0);
+}
+
+function buildCards() {
+  const list = document.getElementById("change-list");
+  CHANGES.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.severity = c.severity;
+    card.dataset.transports = c.transports.join(",");
+    card.dataset.breaking = c.breaking;
+
+    const prLinks = c.prs.map(pr => {
+      const url = PR_URLS[pr];
+      if (url) return `<a class="pr-link" href="${url}" target="_blank" onclick="event.stopPropagation()">${pr}</a>`;
+      return `<span class="pr-link">${pr}</span>`;
+    }).join("");
+
+    const transportBadges = c.transports.map(t =>
+      `<span class="transport-badge">${t}</span>`
+    ).join("");
+
+    const breakingBadge = c.breaking
+      ? `<span class="breaking-badge is-breaking">Breaking</span>`
+      : `<span class="breaking-badge not-breaking">Non-breaking</span>`;
+
+    const backportLabels = { recommended: "Backport: Recommended", consider: "Backport: Consider", no: "Backport: No" };
+    const backportTag = `<span class="backport-tag backport-${c.backport}">${backportLabels[c.backport]}</span>`;
+
+    card.innerHTML = `
+      <div class="card-header" role="button" aria-expanded="false">
+        <span class="card-num">${String(c.id).padStart(2, "0")}</span>
+        <span class="severity-badge badge-${c.severity}">${c.severity}</span>
+        ${breakingBadge}
+        <div class="transport-badges">${transportBadges}</div>
+        <span class="card-title">${c.title}</span>
+        ${backportTag}
+        <div class="card-pr-links">${prLinks}</div>
+        <span class="chevron">&#9660;</span>
+      </div>
+      <div class="card-detail">
+        <p>${c.summary}</p>
+        <pre>${c.example}</pre>
+      </div>`;
+
+    card.querySelector(".card-header").addEventListener("click", () => {
+      card.classList.toggle("expanded");
+      const header = card.querySelector(".card-header");
+      header.setAttribute("aria-expanded", card.classList.contains("expanded"));
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function initFilters() {
+  document.querySelectorAll(".pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      const group = pill.dataset.filter;
+      const value = pill.dataset.value;
+
+      document.querySelectorAll(`.pill[data-filter="${group}"]`).forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+
+      if (group === "severity") activeSeverity = value;
+      if (group === "transport") activeTransport = value;
+      render();
+    });
+  });
+}
+
+buildCards();
+initFilters();
+render();
+</script>
+</body>
+</html>
