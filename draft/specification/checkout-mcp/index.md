@@ -11,14 +11,14 @@ Businesses advertise MCP transport availability through their UCP profile at `/.
 ```json
 {
   "ucp": {
-    "version": "2026-01-11",
+    "version": "draft",
     "services": {
       "dev.ucp.shopping": [
         {
-          "version": "2026-01-11",
-          "spec": "https://ucp.dev/specification/overview",
+          "version": "draft",
+          "spec": "https://ucp.dev/draft/specification/overview",
           "transport": "mcp",
-          "schema": "https://ucp.dev/services/shopping/mcp.openrpc.json",
+          "schema": "https://ucp.dev/draft/services/shopping/mcp.openrpc.json",
           "endpoint": "https://business.example.com/ucp/mcp"
         }
       ]
@@ -26,16 +26,16 @@ Businesses advertise MCP transport availability through their UCP profile at `/.
     "capabilities": {
       "dev.ucp.shopping.checkout": [
         {
-          "version": "2026-01-11",
-          "spec": "https://ucp.dev/specification/checkout",
-          "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+          "version": "draft",
+          "spec": "https://ucp.dev/draft/specification/checkout",
+          "schema": "https://ucp.dev/draft/schemas/shopping/checkout.json"
         }
       ],
       "dev.ucp.shopping.fulfillment": [
         {
-          "version": "2026-01-11",
-          "spec": "https://ucp.dev/specification/fulfillment",
-          "schema": "https://ucp.dev/schemas/shopping/fulfillment.json",
+          "version": "draft",
+          "spec": "https://ucp.dev/draft/specification/fulfillment",
+          "schema": "https://ucp.dev/draft/schemas/shopping/fulfillment.json",
           "extends": "dev.ucp.shopping.checkout"
         }
       ]
@@ -44,7 +44,7 @@ Businesses advertise MCP transport availability through their UCP profile at `/.
       "com.example.vendor.delegate_payment": [
         {
           "id": "handler_1",
-          "version": "2026-01-11",
+          "version": "draft",
           "spec": "https://example.vendor.com/specs/delegate-payment",
           "schema": "https://example.vendor.com/schemas/delegate-payment-config.json",
           "available_instruments": [
@@ -181,18 +181,18 @@ Maps to the [Create Checkout](https://ucp.dev/draft/specification/checkout/#crea
     "structuredContent": {
       "checkout": {
         "ucp": {
-          "version": "2026-01-11",
+          "version": "draft",
           "capabilities": {
             "dev.ucp.shopping.checkout": [
-              {"version": "2026-01-11"}
+              {"version": "draft"}
             ],
             "dev.ucp.shopping.fulfillment": [
-              {"version": "2026-01-11"}
+              {"version": "draft"}
             ]
           },
           "payment_handlers": {
             "com.example.vendor.delegate_payment": [
-              {"id": "handler_1", "version": "2026-01-11", "available_instruments": [{"type": "card"}], "config": {}}
+              {"id": "handler_1", "version": "draft", "available_instruments": [{"type": "card"}], "config": {}}
             ]
           }
         },
@@ -309,6 +309,32 @@ Maps to the [Create Checkout](https://ucp.dev/draft/specification/checkout/#crea
 }
 ```
 
+All items out of stock — no checkout resource is created:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "structuredContent": {
+      "ucp": { "version": "2026-01-11", "status": "error" },
+      "messages": [
+        {
+          "type": "error",
+          "code": "out_of_stock",
+          "content": "All requested items are currently out of stock",
+          "severity": "unrecoverable"
+        }
+      ],
+      "continue_url": "https://merchant.com/"
+    },
+    "content": [
+      {"type": "text", "text": "{\"ucp\":{...},\"messages\":[...]}"}
+    ]
+  }
+}
+```
+
 ### `get_checkout`
 
 Maps to the [Get Checkout](https://ucp.dev/draft/specification/checkout/#get-checkout) operation.
@@ -398,18 +424,18 @@ Maps to the [Update Checkout](https://ucp.dev/draft/specification/checkout/#upda
     "structuredContent": {
       "checkout": {
         "ucp": {
-          "version": "2026-01-11",
+          "version": "draft",
           "capabilities": {
             "dev.ucp.shopping.checkout": [
-              {"version": "2026-01-11"}
+              {"version": "draft"}
             ],
             "dev.ucp.shopping.fulfillment": [
-              {"version": "2026-01-11"}
+              {"version": "draft"}
             ]
           },
           "payment_handlers": {
             "com.example.vendor.delegate_payment": [
-              {"id": "handler_1", "version": "2026-01-11", "available_instruments": [{"type": "card"}], "config": {}}
+              {"id": "handler_1", "version": "draft", "available_instruments": [{"type": "card"}], "config": {}}
             ]
           }
         },
@@ -576,9 +602,9 @@ Business outcomes (including errors like unavailable merchandise) are returned a
     "structuredContent": {
       "checkout": {
         "ucp": {
-          "version": "2026-01-11",
+          "version": "draft",
           "capabilities": {
-            "dev.ucp.shopping.checkout": [{"version": "2026-01-11"}]
+            "dev.ucp.shopping.checkout": [{"version": "draft"}]
           }
         },
         "id": "checkout_abc123",
@@ -603,6 +629,33 @@ Business outcomes (including errors like unavailable merchandise) are returned a
     },
     "content": [
       {"type": "text", "text": "{\"checkout\":{\"ucp\":{...},\"id\":\"checkout_abc123\",...}}"}
+    ]
+  }
+}
+```
+
+For `create_checkout`, when all items unavailable and no checkout can be created, JSON-RPC `result` with `structuredContent` containing the UCP envelope and `messages`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "structuredContent": {
+      "ucp": { "version": "2026-01-11", "status": "error" },
+      "messages": [
+        {
+          "type": "error",
+          "code": "item_unavailable",
+          "content": "Items are not available for purchase in your region",
+          "severity": "unrecoverable",
+          "path": "$.line_items"
+        }
+      ],
+      "continue_url": "https://merchant.com/"
+    },
+    "content": [
+      {"type": "text", "text": "{\"ucp\":{...},\"messages\":[...]}"}
     ]
   }
 }

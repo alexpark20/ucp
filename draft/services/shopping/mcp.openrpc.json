@@ -2,8 +2,8 @@
   "openrpc": "1.3.2",
   "info": {
     "title": "UCP Shopping Service",
-    "version": "2026-02-25",
-    "description": "Canonical MCP/JSON-RPC interface for UCP Shopping service. Schema references are logical pointers - actual payload shape is determined by negotiated capabilities.\n\n**Endpoint Resolution:** This spec defines methods only. The endpoint URL MUST be obtained from the merchant's discovery profile at `/.well-known/ucp` under `services[\"dev.ucp.shopping\"][transport=mcp].endpoint`. The server entry below is a placeholder for tooling compatibility."
+    "description": "Canonical MCP/JSON-RPC interface for UCP Shopping service. Schema references are logical pointers - actual payload shape is determined by negotiated capabilities.\n\n**Endpoint Resolution:** This spec defines methods only. The endpoint URL MUST be obtained from the merchant's discovery profile at `/.well-known/ucp` under `services[\"dev.ucp.shopping\"][transport=mcp].endpoint`. The server entry below is a placeholder for tooling compatibility.",
+    "version": "2026-03-13"
   },
   "servers": [
     {
@@ -20,6 +20,26 @@
   ],
   "components": {
     "schemas": {
+      "checkout_result": {
+        "oneOf": [
+          {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          },
+          {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/types/error_response.json"
+          }
+        ]
+      },
+      "cart_result": {
+        "oneOf": [
+          {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/cart.json"
+          },
+          {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/types/error_response.json"
+          }
+        ]
+      },
       "meta": {
         "type": "object",
         "description": "Request metadata.",
@@ -79,7 +99,7 @@
       "result": {
         "name": "checkout",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          "$ref": "#/components/schemas/checkout_result"
         }
       }
     },
@@ -105,7 +125,7 @@
       "result": {
         "name": "checkout",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          "$ref": "#/components/schemas/checkout_result"
         }
       }
     },
@@ -138,7 +158,7 @@
       "result": {
         "name": "checkout",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          "$ref": "#/components/schemas/checkout_result"
         }
       }
     },
@@ -181,7 +201,7 @@
       "result": {
         "name": "checkout",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          "$ref": "#/components/schemas/checkout_result"
         }
       }
     },
@@ -217,7 +237,7 @@
       "result": {
         "name": "checkout",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/checkout.json"
+          "$ref": "#/components/schemas/checkout_result"
         }
       }
     },
@@ -244,7 +264,7 @@
       "result": {
         "name": "cart",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/cart.json"
+          "$ref": "#/components/schemas/cart_result"
         }
       }
     },
@@ -270,7 +290,7 @@
       "result": {
         "name": "cart",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/cart.json"
+          "$ref": "#/components/schemas/cart_result"
         }
       }
     },
@@ -303,7 +323,7 @@
       "result": {
         "name": "cart",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/cart.json"
+          "$ref": "#/components/schemas/cart_result"
         }
       }
     },
@@ -339,7 +359,61 @@
       "result": {
         "name": "cart",
         "schema": {
-          "$ref": "https://ucp.dev/draft/schemas/shopping/cart.json"
+          "$ref": "#/components/schemas/cart_result"
+        }
+      }
+    },
+    {
+      "name": "search_catalog",
+      "summary": "Search for products in the catalog",
+      "description": "Search for products using query text, filters, and pagination.",
+      "params": [
+        {
+          "name": "meta",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/meta"
+          }
+        },
+        {
+          "name": "catalog",
+          "required": true,
+          "schema": {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/catalog_search.json#/$defs/search_request"
+          }
+        }
+      ],
+      "result": {
+        "name": "response",
+        "schema": {
+          "$ref": "https://ucp.dev/draft/schemas/shopping/catalog_search.json#/$defs/search_response"
+        }
+      }
+    },
+    {
+      "name": "lookup_catalog",
+      "summary": "Batch lookup products or variants by identifier",
+      "description": "Batch lookup of products or variants by identifier. See Catalog Lookup capability for supported identifier types and resolution behavior.",
+      "params": [
+        {
+          "name": "meta",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/meta"
+          }
+        },
+        {
+          "name": "catalog",
+          "required": true,
+          "schema": {
+            "$ref": "https://ucp.dev/draft/schemas/shopping/catalog_lookup.json#/$defs/lookup_request"
+          }
+        }
+      ],
+      "result": {
+        "name": "response",
+        "schema": {
+          "$ref": "https://ucp.dev/draft/schemas/shopping/catalog_lookup.json#/$defs/lookup_response"
         }
       }
     }
