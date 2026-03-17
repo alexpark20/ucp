@@ -503,8 +503,8 @@ HTTP/1.1 422 Unprocessable Entity
     breaking: true,
     backport: "no",
     transports: ["REST"],
-    title: "Cart not-found: 404 removed, returns 200 + error_response",
-    prs: ["#216"],
+    title: "Cart/Checkout not-found: 404 removed, returns 200 + error_response",
+    prs: ["#129", "#216"],
     summary: "Cart lookup no longer returns 404. A missing cart returns HTTP 200 with a structured error_response body.",
     example: `<span class="comment">// 2026-01-23 client</span>
 if (response.status === 404) { handleNotFound(); } <span class="comment">// dead code path</span>
@@ -576,7 +576,7 @@ switch (msg.severity) {
     backport: "consider",
     transports: ["REST", "MCP", "Embedded"],
     title: "Profile must serve Cache-Control: public, max-age ≥ 60",
-    prs: ["docs"],
+    prs: ["#156"],
     summary: "Platform profiles must now be served with permissive Cache-Control. Profiles served as private or no-cache will be rejected by draft implementations.",
     example: `<span class="comment">// 2026-01-23 platform profile endpoint (non-compliant)</span>
 HTTP/1.1 200 OK
@@ -677,7 +677,7 @@ switch (msg.code) {
   {
     id: 13,
     severity: "low",
-    breaking: true,
+    breaking: false,
     backport: "consider",
     transports: ["REST", "MCP"],
     title: "Cart-to-checkout discount codes must be forwarded",
