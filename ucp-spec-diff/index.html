@@ -426,9 +426,9 @@ HTTP/1.1 422 Unprocessable Entity
     id: 3,
     severity: "critical",
     transports: ["REST"],
-    title: "Cart not-found: 404 removed, returns 200 + error_response",
-    prs: ["#216"],
-    summary: "Cart lookup no longer returns 404. A missing cart returns HTTP 200 with a structured error_response body.",
+    title: "Cart/Checkout not-found: 404 removed, returns 200 + error_response",
+    prs: ["#129", "#216"],
+    summary: "Cart/Checkout lookup no longer returns 404. A missing cart returns HTTP 200 with a structured error_response body.",
     example: `<span class="comment">// 2026-01-23 client</span>
 if (response.status === 404) { handleNotFound(); } <span class="comment">// dead code path</span>
 
