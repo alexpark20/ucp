@@ -491,7 +491,7 @@ switch (msg.severity) {
     severity: "high",
     transports: ["REST", "MCP", "Embedded"],
     title: "Profile must serve Cache-Control: public, max-age ≥ 60",
-    prs: ["docs"],
+    prs: ["#156"],
     summary: "Platform profiles must now be served with permissive Cache-Control. Profiles served as private or no-cache will be rejected by draft implementations.",
     example: `<span class="comment">// 2026-01-23 platform profile endpoint (non-compliant)</span>
 HTTP/1.1 200 OK

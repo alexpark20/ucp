@@ -20,7 +20,7 @@
 | 4 | MCP results: `oneOf [resource, error_response]` | draft | `draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
 | 5 | `ucp.status: "error"` discriminator on 200 responses | draft | `2026-01-23, draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
 | 6 | New `unrecoverable` severity value | draft | `2026-01-23, draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
-| 7 | Profile `Cache-Control: public, max-age ≥ 60` | draft | `2026-01-23, draft` | ✅ | docs |
+| 7 | Profile `Cache-Control: public, max-age ≥ 60` | draft | `2026-01-23, draft` | ✅ | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
 | 10 | `adjustment.amount` minimum: 0 enforcement | draft | `—` | ✅ | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
 | 12 | New error codes (`out_of_stock`, `address_undeliverable`) | draft | `2026-01-23, draft` | ✅ | [#147](https://github.com/Universal-Commerce-Protocol/ucp/pull/147) |
 | 13 | Cart-to-checkout: discount codes forwarded explicitly | draft | `2026-01-23, draft` | ✅ | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
