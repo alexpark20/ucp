@@ -335,7 +335,7 @@
       <span class="version">draft</span>
     </h1>
     <p>
-      15 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
+      21 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
     </p>
   </div>
 </header>
@@ -373,7 +373,7 @@
 </div>
 
 <main>
-  <div class="results-header"><span id="visible-count">15</span> of 15 changes</div>
+  <div class="results-header"><span id="visible-count">21</span> of 21 changes</div>
   <div class="change-list" id="change-list"></div>
   <div class="no-results" id="no-results">No changes match the current filters.</div>
 </main>
@@ -620,19 +620,192 @@ discount.json#/$defs/dev.ucp.shopping.checkout`
 
 <span class="comment">// 2026-01-23 clients can ignore this — no break</span>
 <span class="comment">// New: embedded_config.json returns color_scheme: ["light", "dark"]</span>`
+  },
+  {
+    id: 16,
+    severity: "additive",
+    transports: ["REST", "MCP"],
+    title: "Optional request/response signing headers",
+    prs: ["#156"],
+    summary: "Three new optional headers enable request/response integrity verification. REST: <code>Signature</code>, <code>Signature-Input</code>, <code>UCP-Content-Digest-JCS</code> on both requests and responses. MCP: new optional <code>meta.signature</code> (detached JWS), <code>meta.idempotency-key</code>, and <code>meta.ucp-agent</code> fields. All <code>required: false</code> — 2026-01-23 clients can ignore entirely.",
+    example: `<span class="comment">// REST — new optional signing headers on request</span>
+POST /checkouts HTTP/1.1
+UCP-Agent: profile="https://platform.example/profile"
+Signature-Input: sig1=("@method" "@target-uri" "content-digest");created=1736600000
+Signature: sig1=:base64encodedvalue==:
+UCP-Content-Digest-JCS: sha-256=:body-content-hash==:
+
+<span class="comment">// REST — server echoes signing headers in response</span>
+HTTP/1.1 200 OK
+Signature-Input: sig1=("@status" "content-digest");created=1736600001
+Signature: sig1=:responsebase64==:
+
+<span class="comment">// MCP — new optional meta fields</span>
+{
+  "id": 1, "method": "createCheckout",
+  "meta": {
+    "ucp-agent": "profile=\"https://platform.example/profile\"",
+    "idempotency-key": "idem_abc123",
+    "signature": "detached-jws-value"
+  },
+  "params": { ... }
+}
+
+<span class="comment">// 2026-01-23 clients that omit all signing fields — no break</span>`
+  },
+  {
+    id: 17,
+    severity: "high",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "Eligibility claims & provisional discounts",
+    prs: ["#250"],
+    summary: "A new <code>context.eligibility</code> array lets platforms assert buyer eligibility claims (e.g. staff, student, loyalty tier). <code>discount.applied_discount</code> gains <code>provisional: bool</code> and <code>eligibility: string</code> fields. <code>discount.amount</code> type changed from <code>integer</code> → <code>$ref: types/amount.json</code>. New error code <code>invalid_eligibility</code> blocks checkout completion if unverified. Breaking for clients using the discount extension — must handle new fields and the blocking error.",
+    example: `<span class="comment">// Draft server returns applied discount with new fields</span>
+{
+  "discounts": {
+    "applied_discounts": [{
+      "code": "STAFF20",
+      "provisional": true,         <span class="comment">// NEW — unverified at checkout time</span>
+      "eligibility": "staff"       <span class="comment">// NEW — claim requiring verification</span>
+    }]
+  }
+}
+
+<span class="comment">// 2026-01-23 client ignores unknown fields — discount appears applied</span>
+<span class="comment">// But checkout complete may return:</span>
+{
+  "messages": [{
+    "code": "invalid_eligibility",   <span class="comment">// NEW error code — no handler in client</span>
+    "severity": "unrecoverable"
+  }]
+}
+<span class="comment">// Checkout blocked — client has no recovery path for this code</span>`
+  },
+  {
+    id: 18,
+    severity: "additive",
+    transports: ["REST", "MCP"],
+    title: "Optional `signals` field on cart and checkout",
+    prs: ["#203"],
+    summary: "A new optional <code>signals</code> object on cart and checkout (request and response) carries platform-asserted context: <code>buyer_ip</code> (IPv4/IPv6), <code>user_agent</code> (HTTP UA string), extensible via reverse-domain keys. Platform-asserted only — not editable by business logic. 2026-01-23 clients can ignore entirely.",
+    example: `<span class="comment">// Checkout create with optional signals</span>
+POST /checkouts HTTP/1.1
+{
+  "context": { "locale": "en-CA", "currency": "CAD" },
+  "signals": {
+    "buyer_ip": "203.0.113.42",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+  },
+  "line_items": [...]
+}
+
+<span class="comment">// 2026-01-23 clients that omit signals — no break</span>
+POST /checkouts HTTP/1.1
+{ "context": { ... }, "line_items": [...] }
+
+<span class="comment">// Server response may include signals — 2026-01-23 clients ignore unknown fields</span>`
+  },
+  {
+    id: 19,
+    severity: "low",
+    transports: ["REST", "MCP"],
+    title: "Fulfillment method `id`/`type` optional on update",
+    prs: ["#143", "#196"],
+    summary: "On update operations, <code>fulfillment_method.id</code> transitions from <code>required</code> → <code>optional</code>, and <code>fulfillment_method.type</code> transitions from <code>omit</code> → <code>optional</code>. Non-breaking: 2026-01-23 clients sending both fields continue to work. Previously-rejected payloads (missing <code>id</code>, or providing <code>type</code>) will now be accepted by draft servers.",
+    example: `<span class="comment">// 2026-01-23: id required on fulfillment_method update</span>
+PATCH /checkouts/ch_123
+{
+  "fulfillment_method": {
+    "id": "ship_standard",        <span class="comment">// was required</span>
+    "handle": "standard-shipping"
+  }
+}
+
+<span class="comment">// Draft: id is now optional</span>
+PATCH /checkouts/ch_123
+{
+  "fulfillment_method": {
+    "handle": "standard-shipping"  <span class="comment">// id may be omitted</span>
+  }
+}
+
+<span class="comment">// type is now accepted on update (was omit/disallowed before)</span>
+{
+  "fulfillment_method": {
+    "type": "shipping",
+    "handle": "standard-shipping"
+  }
+}`
+  },
+  {
+    id: 20,
+    severity: "additive",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "`intent` field added to context",
+    prs: ["#95"],
+    summary: "A new optional string field <code>intent</code> on <code>context.json</code> allows platforms to pass buyer purchase intent (e.g. <code>gift</code>, <code>subscription</code>, <code>resale</code>). Downstream business logic can use it for personalization or eligibility decisions. No required field changes — 2026-01-23 clients that don't send <code>intent</code> are unaffected.",
+    example: `<span class="comment">// Draft: context object with intent</span>
+{
+  "context": {
+    "locale": "en-CA",
+    "currency": "CAD",
+    "intent": "gift"              <span class="comment">// NEW optional field</span>
+  }
+}
+
+<span class="comment">// 2026-01-23 context without intent — no break</span>
+{
+  "context": {
+    "locale": "en-CA",
+    "currency": "CAD"
+  }
+}`
+  },
+  {
+    id: 21,
+    severity: "additive",
+    transports: ["Tooling"],
+    title: "`available_instruments` added to payment handler",
+    prs: ["#187"],
+    summary: "A new optional array field <code>available_instruments</code> on <code>payment_handler.json</code> lets a handler declare which instrument types it supports (e.g. <code>card</code>, <code>wallet</code>, <code>bank_redirect</code>). When absent, all instruments are assumed available — backward compatible. Introduces a new type <code>available_payment_instrument.json</code>.",
+    example: `<span class="comment">// payment_handler.json — 2026-01-23 compatible (no available_instruments)</span>
+{
+  "name": "com.example.payment-handler",
+  "version": "2026-01-23"
+}
+
+<span class="comment">// With available_instruments (new optional field in draft)</span>
+{
+  "name": "com.example.payment-handler",
+  "version": "draft",
+  "available_instruments": [
+    { "type": "card" },
+    { "type": "wallet", "id": "com.example.wallet" }
+  ]
+}
+
+<span class="comment">// Handlers that omit available_instruments — no break</span>
+<span class="comment">// All instrument types assumed available when field is absent</span>`
   }
 ];
 
 const PR_URLS = {
+  "#95":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/95",
   "#96":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/96",
   "#120": "https://github.com/Universal-Commerce-Protocol/ucp/pull/120",
+  "#143": "https://github.com/Universal-Commerce-Protocol/ucp/pull/143",
   "#145": "https://github.com/Universal-Commerce-Protocol/ucp/pull/145",
   "#147": "https://github.com/Universal-Commerce-Protocol/ucp/pull/147",
   "#154": "https://github.com/Universal-Commerce-Protocol/ucp/pull/154",
+  "#156": "https://github.com/Universal-Commerce-Protocol/ucp/pull/156",
   "#157": "https://github.com/Universal-Commerce-Protocol/ucp/pull/157",
+  "#187": "https://github.com/Universal-Commerce-Protocol/ucp/pull/187",
+  "#196": "https://github.com/Universal-Commerce-Protocol/ucp/pull/196",
   "#200": "https://github.com/Universal-Commerce-Protocol/ucp/pull/200",
+  "#203": "https://github.com/Universal-Commerce-Protocol/ucp/pull/203",
   "#216": "https://github.com/Universal-Commerce-Protocol/ucp/pull/216",
   "#246": "https://github.com/Universal-Commerce-Protocol/ucp/pull/246",
+  "#250": "https://github.com/Universal-Commerce-Protocol/ucp/pull/250",
 };
 
 let activeSeverity = "all";
