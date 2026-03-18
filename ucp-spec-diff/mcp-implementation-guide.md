@@ -7,28 +7,29 @@
 | Column | Meaning |
 | --- | --- |
 | **Spec Version** | UCP spec version that introduces this behavior (all entries here are `draft`) |
-| **Shopify Impl Version** | Shopify endpoint(s) where this behavior should be active: `2026-01-23, draft` = both; `draft` = draft endpoint only; `—` = deferred |
-| **Implemented** | Whether the Shopify implementation currently has this behavior |
+| **Current Impl Version** | Shopify endpoint(s) where this behavior being served as of today: `2026-01-23, draft` = both; `draft` = draft endpoint only; |
+| **Suggested Impl Version** | Shopify endpoint(s) where this behavior should be served: `2026-01-23, draft` = both; `draft` = draft endpoint only; `TBD` = Let's discuss |
 
 ---
 
 ## Changes
 
-| # | Change | Spec Version | Shopify Impl Version | Implemented | PR |
+> NOTE: # number is based from [this list](https://ucp-spec-diff.quick.shopify.io/) showing all diff.
+
+| # | Change | Spec Version | Current Impl Version | Suggested Impl Version | UCP PR |
 | --- | --- | --- | --- | --- | --- |
-| 2 | Version negotiation: 422 on version mismatch | draft | `draft` | ✅ | [#200](https://github.com/Universal-Commerce-Protocol/ucp/pull/200) |
-| 4 | MCP results: `oneOf [resource, error_response]` | draft | `draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
-| 5 | `ucp.status: "error"` discriminator on 200 responses | draft | `2026-01-23, draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
-| 6 | New `unrecoverable` severity value | draft | `2026-01-23, draft` | ✅ | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
-| 7 | Profile `Cache-Control: public, max-age ≥ 60` | draft | `2026-01-23, draft` | ✅ | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
-| 10 | `adjustment.amount` minimum: 0 enforcement | draft | `—` | ✅ | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
-| 12 | New error codes (`out_of_stock`, `address_undeliverable`) | draft | `2026-01-23, draft` | ✅ | [#147](https://github.com/Universal-Commerce-Protocol/ucp/pull/147) |
-| 13 | Cart-to-checkout: discount codes forwarded explicitly | draft | `2026-01-23, draft` | ✅ | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
-| 16 | Signing headers (`meta.signature`, `meta.idempotency-key`, `meta.ucp-agent`) | draft | `2026-01-23, draft` | ✅ | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
-| 17 | Eligibility claims & `invalid_eligibility` blocking error | draft | `2026-01-23, draft` | ✅ | [#250](https://github.com/Universal-Commerce-Protocol/ucp/pull/250) |
-| 18 | `signals` field on cart/checkout | draft | `2026-01-23, draft` | ✅ | [#203](https://github.com/Universal-Commerce-Protocol/ucp/pull/203) |
-| 19 | Fulfillment method `id`/`type` optional on update | draft | `2026-01-23, draft` | ✅ | [#143](https://github.com/Universal-Commerce-Protocol/ucp/pull/143), [#196](https://github.com/Universal-Commerce-Protocol/ucp/pull/196) |
-| 20 | `intent` field in context | draft | `2026-01-23, draft` | ✅ | [#95](https://github.com/Universal-Commerce-Protocol/ucp/pull/95) |
+| 2 | Version negotiation: 422 on version mismatch | `draft` | `01-23, draft` | `01-23, draft` | [#200](https://github.com/Universal-Commerce-Protocol/ucp/pull/200) |
+| 4 | MCP results: `oneOf [resource, error_response]` | `draft` | `draft` | `01-23, draft` | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
+| 5 | `ucp.status: "error"` discriminator on 200 responses | `draft` | `01-23, draft` | `01-23, draft` | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
+| 6 | New `unrecoverable` severity value | `draft` | `2026-01-23, draft` | `01-23, draft` | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
+| 7 | Profile `Cache-Control: public, max-age ≥ 60` | `draft` | `2026-01-23, draft` | `01-23, draft` | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
+| 10 | `adjustment.amount` minimum: 0 enforcement | `draft` | `—` | `01-23, draft` | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
+| 12 | New error codes (`out_of_stock`, `address_undeliverable`) | `draft` | `2026-01-23, draft` | `01-23, draft` | [#147](https://github.com/Universal-Commerce-Protocol/ucp/pull/147) |
+| 16 | Signing headers (`meta.signature`, `meta.idempotency-key`, `meta.ucp-agent`) | `draft` | `2026-01-23, draft` | `01-23, draft` | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
+| 17 | Eligibility claims & `invalid_eligibility` blocking error | `draft` | `2026-01-23, draft` | `draft` | [#250](https://github.com/Universal-Commerce-Protocol/ucp/pull/250) |
+| 18 | `signals` field on cart/checkout | `draft` | `2026-01-23, draft` | `draft` | [#203](https://github.com/Universal-Commerce-Protocol/ucp/pull/203) |
+| 19 | Fulfillment method `id`/`type` optional on update | `draft` | `2026-01-23, draft` | `01-23, draft` | [#143](https://github.com/Universal-Commerce-Protocol/ucp/pull/143), [#196](https://github.com/Universal-Commerce-Protocol/ucp/pull/196) |
+| 20 | `intent` field in context | `draft` | `2026-01-23, draft` | `01-23, draft` | [#95](https://github.com/Universal-Commerce-Protocol/ucp/pull/95) |
 
 ---
 
