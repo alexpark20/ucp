@@ -23,7 +23,7 @@
 | 5 | `ucp.status: "error"` discriminator on 200 responses | `draft` | `01-23, draft` | `01-23, draft` | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
 | 6 | New `unrecoverable` severity value | `draft` | `2026-01-23, draft` | `01-23, draft` | [#216](https://github.com/Universal-Commerce-Protocol/ucp/pull/216) |
 | 7 | Profile `Cache-Control: public, max-age ≥ 60` | `draft` | `2026-01-23, draft` | `01-23, draft` | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
-| 10 | `adjustment.amount` minimum: 0 enforcement | `draft` | `—` | `01-23, draft` | [#246](https://github.com/Universal-Commerce-Protocol/ucp/pull/246) |
+| 10 | `adjustment.amount` minimum: 0 enforcement | `draft` | `—` | `01-23, draft` | [#55](https://github.com/Universal-Commerce-Protocol/ucp/pull/55) |
 | 12 | New error codes (`out_of_stock`, `address_undeliverable`) | `draft` | `2026-01-23, draft` | `01-23, draft` | [#147](https://github.com/Universal-Commerce-Protocol/ucp/pull/147) |
 | 16 | Signing headers (`meta.signature`, `meta.idempotency-key`, `meta.ucp-agent`) | `draft` | `2026-01-23, draft` | `01-23, draft` | [#156](https://github.com/Universal-Commerce-Protocol/ucp/pull/156) |
 | 17 | Eligibility claims & `invalid_eligibility` blocking error | `draft` | `2026-01-23, draft` | `draft` | [#250](https://github.com/Universal-Commerce-Protocol/ucp/pull/250) |
