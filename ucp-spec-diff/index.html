@@ -877,7 +877,7 @@ PATCH /checkouts/ch_123
     severity: "additive",
     breaking: false,
     backport: "recommended",
-    transports: ["Tooling"],
+    transports: ["REST", "MCP", "Embedded"],
     title: "`available_instruments` added to payment handler",
     prs: ["#187"],
     summary: "A new optional array field <code>available_instruments</code> on <code>payment_handler.json</code> lets a handler declare which instrument types it supports (e.g. <code>card</code>, <code>wallet</code>, <code>bank_redirect</code>). When absent, all instruments are assumed available — backward compatible. Introduces a new type <code>available_payment_instrument.json</code>.",
