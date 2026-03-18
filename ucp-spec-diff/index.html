@@ -335,7 +335,7 @@
       <span class="version">draft</span>
     </h1>
     <p>
-      21 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
+      22 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
     </p>
   </div>
 </header>
@@ -373,7 +373,7 @@
 </div>
 
 <main>
-  <div class="results-header"><span id="visible-count">21</span> of 21 changes</div>
+  <div class="results-header"><span id="visible-count">22</span> of 22 changes</div>
   <div class="change-list" id="change-list"></div>
   <div class="no-results" id="no-results">No changes match the current filters.</div>
 </main>
@@ -786,6 +786,30 @@ PATCH /checkouts/ch_123
 
 <span class="comment">// Handlers that omit available_instruments — no break</span>
 <span class="comment">// All instrument types assumed available when field is absent</span>`
+  },
+  {
+    id: 22,
+    severity: "low",
+    transports: ["REST", "MCP", "Embedded", "Tooling"],
+    title: "Extension schemas: `requires` version constraints",
+    prs: ["#200"],
+    summary: "A new optional <code>requires</code> field on extension schemas lets authors declare minimum (and optionally maximum) protocol and capability version constraints. Platform schema resolvers <strong>MUST</strong> check these constraints after fetching each extension — incompatible extensions must be excluded before composition. Implementations that skip this check will silently compose incompatible extensions.",
+    example: `<span class="comment">// Draft extension schema — declares version requirements</span>
+{
+  "name": "com.acme.shopping.loyalty",
+  "requires": {
+    "protocol": { "min": "2026-01-23" },
+    "capabilities": {
+      "dev.ucp.shopping.checkout": { "min": "2026-06-01" }
+    }
+  }
+}
+
+<span class="comment">// Platform resolver: MUST check constraints after fetch</span>
+<span class="comment">// If negotiated version &lt; requires.protocol.min → exclude extension</span>
+
+<span class="comment">// 2026-01-23 clients that don't handle requires → silently compose</span>
+<span class="comment">// incompatible extension; undefined behavior at validation time</span>`
   }
 ];
 
