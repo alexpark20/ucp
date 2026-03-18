@@ -629,7 +629,7 @@ GET http://platform.example/.well-known/ucp  <span class="comment">← HTTP, not
     backport: "consider",
     transports: ["REST", "MCP"],
     title: "adjustment.amount now minimum: 0 (was unconstrained)",
-    prs: ["#246"],
+    prs: ["#55"],
     summary: "The amount field in adjustment objects now enforces minimum: 0. Negative values used to represent credits are now schema-invalid.",
     example: `<span class="comment">// 2026-01-23: adjustment.amount had no minimum</span>
 { "type": "credit", "amount": -500 }  <span class="comment">// negative = credit, was valid</span>
@@ -903,6 +903,7 @@ PATCH /checkouts/ch_123
 ];
 
 const PR_URLS = {
+  "#55":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/55",
   "#95":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/95",
   "#96":  "https://github.com/Universal-Commerce-Protocol/ucp/pull/96",
   "#120": "https://github.com/Universal-Commerce-Protocol/ucp/pull/120",
