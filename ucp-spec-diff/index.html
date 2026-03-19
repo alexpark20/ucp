@@ -335,7 +335,7 @@
       <span class="version">draft</span>
     </h1>
     <p>
-      22 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
+      26 changes between the <strong>2026-01-23</strong> release and <strong>draft</strong>. This reference documents these changes from the perspective of client (platform) implementations. Filter by severity or transport to scope impact.
     </p>
   </div>
 </header>
@@ -373,7 +373,7 @@
 </div>
 
 <main>
-  <div class="results-header"><span id="visible-count">22</span> of 22 changes</div>
+  <div class="results-header"><span id="visible-count">26</span> of 26 changes</div>
   <div class="change-list" id="change-list"></div>
   <div class="no-results" id="no-results">No changes match the current filters.</div>
 </main>
@@ -427,7 +427,7 @@ HTTP/1.1 422 Unprocessable Entity
     severity: "critical",
     transports: ["REST"],
     title: "Cart/Checkout not-found: 404 removed, returns 200 + error_response",
-    prs: ["#129", "#216"],
+    prs: ["#216"],
     summary: "Cart/Checkout lookup no longer returns 404. A missing cart returns HTTP 200 with a structured error_response body.",
     example: `<span class="comment">// 2026-01-23 client</span>
 if (response.status === 404) { handleNotFound(); } <span class="comment">// dead code path</span>
@@ -599,14 +599,20 @@ POST /checkouts { "cart_id": "cart_123" }  <span class="comment">// codes not fo
     id: 14,
     severity: "low",
     transports: ["Tooling"],
-    title: "discount.json `$defs/checkout` key renamed",
+    title: "Extension schemas: `$defs/checkout` key renamed to fully-qualified name",
     prs: ["#96"],
-    summary: "The checkout definition key inside discount.json has been renamed to the fully-qualified capability name.",
-    example: `<span class="comment">// 2026-01-23 schema reference</span>
-discount.json#/$defs/checkout  → undefined in draft
+    summary: "The checkout definition key inside four extension schemas (<code>discount.json</code>, <code>ap2_mandate.json</code>, <code>buyer_consent.json</code>, <code>fulfillment.json</code>) has been renamed from <code>checkout</code> to the fully-qualified capability name. Tooling that references these <code>$defs</code> by path will resolve to undefined.",
+    example: `<span class="comment">// 2026-01-23 schema references — all now undefined in draft</span>
+discount.json#/$defs/checkout       → undefined
+ap2_mandate.json#/$defs/checkout    → undefined
+buyer_consent.json#/$defs/checkout  → undefined
+fulfillment.json#/$defs/checkout    → undefined
 
-<span class="comment">// Draft renamed to</span>
-discount.json#/$defs/dev.ucp.shopping.checkout`
+<span class="comment">// Draft: all four renamed to fully-qualified key</span>
+discount.json#/$defs/dev.ucp.shopping.checkout
+ap2_mandate.json#/$defs/dev.ucp.shopping.checkout
+buyer_consent.json#/$defs/dev.ucp.shopping.checkout
+fulfillment.json#/$defs/dev.ucp.shopping.checkout`
   },
   {
     id: 15,
@@ -683,27 +689,26 @@ Signature: sig1=:responsebase64==:
   },
   {
     id: 18,
-    severity: "additive",
+    severity: "low",
     transports: ["REST", "MCP"],
-    title: "Optional `signals` field on cart and checkout",
+    title: "`signals` replaces `risk_signals`; well-known keys go reverse-domain",
     prs: ["#203"],
-    summary: "A new optional <code>signals</code> object on cart and checkout (request and response) carries platform-asserted context: <code>buyer_ip</code> (IPv4/IPv6), <code>user_agent</code> (HTTP UA string), extensible via reverse-domain keys. Platform-asserted only — not editable by business logic. 2026-01-23 clients can ignore entirely.",
-    example: `<span class="comment">// Checkout create with optional signals</span>
-POST /checkouts HTTP/1.1
+    summary: "The old <code>risk_signals</code> field on checkout is now <strong>deprecated</strong> (scheduled for removal next version); the new <code>signals</code> field replaces it. Well-known signal keys renamed: <code>buyer_ip</code> → <code>dev.ucp.buyer_ip</code>, <code>user_agent</code> → <code>dev.ucp.user_agent</code>. A new <code>propertyNames</code> constraint enforces reverse-domain format on all signal keys. Breaking for clients that sent <code>risk_signals</code> or used the old short key names; invisible to clients that didn't use either field.",
+    example: `<span class="comment">// Old short key names — now schema-invalid (propertyNames constraint)</span>
+{ "signals": { "buyer_ip": "...", "user_agent": "..." } }  <span class="comment">// → validation error</span>
+
+<span class="comment">// Draft: reverse-domain key names required</span>
 {
-  "context": { "locale": "en-CA", "currency": "CAD" },
   "signals": {
-    "buyer_ip": "203.0.113.42",
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-  },
-  "line_items": [...]
+    "dev.ucp.buyer_ip":    "203.0.113.42",
+    "dev.ucp.user_agent":  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+  }
 }
 
-<span class="comment">// 2026-01-23 clients that omit signals — no break</span>
-POST /checkouts HTTP/1.1
-{ "context": { ... }, "line_items": [...] }
+<span class="comment">// risk_signals deprecated — migrate to signals</span>
+{ "risk_signals": { ... } }  <span class="comment">// deprecated field; will be removed in next version</span>
 
-<span class="comment">// Server response may include signals — 2026-01-23 clients ignore unknown fields</span>`
+<span class="comment">// Clients that never used signals or risk_signals — no break</span>`
   },
   {
     id: 19,
@@ -788,10 +793,102 @@ PATCH /checkouts/ch_123
 <span class="comment">// All instrument types assumed available when field is absent</span>`
   },
   {
+    id: 23,
+    severity: "critical",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "Totals: structured contract with required subtotal + total entries",
+    prs: ["#261"],
+    summary: "The <code>totals</code> field on checkout and order responses now uses a new <code>totals.json</code> type that enforces structure: exactly one <code>subtotal</code> and one <code>total</code> entry required. Discount amounts now use <code>signed_amount.json</code> (supports negative values) and are constrained to negative by schema. <code>total.json</code> <code>type</code> field moved from strict enum to open string with well-known values. Optional <code>lines</code> sub-array for itemized breakdowns. Breaking for 2026-01-23 clients that depended on the flat unconstrained array shape or exhaustive-matched the type enum.",
+    example: `<span class="comment">// 2026-01-23: flat array<total>, no structural constraints</span>
+{ "totals": [{ "type": "tax", "amount": 80 }] }  <span class="comment">// valid — no subtotal/total required</span>
+
+<span class="comment">// Draft: exactly one subtotal and one total required</span>
+{
+  "totals": [
+    { "type": "subtotal",  "amount": 1000 },
+    { "type": "discount",  "amount": -100 },  <span class="comment">// signed_amount: negative enforced for discount</span>
+    { "type": "tax",       "amount": 80   },
+    { "type": "total",     "amount": 980  }
+  ]
+}
+
+<span class="comment">// Missing subtotal or total → schema validation failure</span>
+<span class="comment">// Clients exhaustive-matching type enum must handle unknown values</span>
+<span class="comment">// 2026-01-23 clients that construct totals as plain arrays will fail validation</span>`
+  },
+  {
+    id: 24,
+    severity: "additive",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "`message_warning` gains `presentation`, `image_url`, and `url` fields",
+    prs: ["#267"],
+    summary: "Three new optional fields on <code>message_warning.json</code>: <code>presentation</code> (<code>notice</code> | <code>disclosure</code>) controls rendering contract — <code>disclosure</code> warnings MUST be displayed inline and MUST NOT be auto-dismissed; <code>image_url</code> for a required visual element (e.g., energy label); <code>url</code> for a reference link. 2026-01-23 clients that ignore unknown fields are unaffected.",
+    example: `<span class="comment">// New optional fields on warnings in any checkout/cart response</span>
+{
+  "messages": [{
+    "severity": "requires_buyer_review",
+    "code": "regulatory_warning",
+    "path": "/line_items/0",
+    "content": "This product requires age verification under EU law.",
+    "presentation": "disclosure",  <span class="comment">// NEW — MUST display inline, MUST NOT auto-dismiss</span>
+    "image_url": "https://example.com/age-warning.png",  <span class="comment">// NEW</span>
+    "url": "https://example.com/age-verification-policy"  <span class="comment">// NEW</span>
+  }]
+}
+
+<span class="comment">// 2026-01-23 clients that ignore unknown fields — no break</span>
+<span class="comment">// Clients that render warnings: must handle disclosure rendering contract</span>`
+  },
+  {
+    id: 25,
+    severity: "additive",
+    transports: ["REST", "MCP", "Embedded"],
+    title: "`language` and `currency` fields added to context",
+    prs: ["#55"],
+    summary: "Two new optional fields on <code>context.json</code>: <code>language</code> (IETF BCP 47) for content localization — overrides <code>Accept-Language</code> header in REST; <code>currency</code> (ISO 4217) as a presentment hint for multi-currency markets and as the denomination for price filter values. Both are provisional hints — businesses MAY return content in a different language or currency than requested. 2026-01-23 clients that don't send these fields are unaffected.",
+    example: `<span class="comment">// Draft: extended context with localization hints</span>
+{
+  "context": {
+    "address_country": "CH",
+    "language": "de",    <span class="comment">// NEW — overrides Accept-Language header (REST)</span>
+    "currency": "EUR",   <span class="comment">// NEW — presentment hint + price filter denomination</span>
+    "intent": "gift"
+  }
+}
+
+<span class="comment">// Catalog search: currency denominating price filters</span>
+{
+  "catalog": { "query": "blue running shoes" },
+  "context": { "currency": "EUR" },
+  "filters": { "price": { "min": 5000, "max": 15000 } }  <span class="comment">// in EUR minor units</span>
+}
+
+<span class="comment">// 2026-01-23 clients that omit both fields — no break</span>`
+  },
+  {
+    id: 26,
+    severity: "additive",
+    transports: ["REST", "MCP"],
+    title: "`currency` field added to order",
+    prs: ["#210"],
+    summary: "A new optional <code>currency</code> field (ISO 4217) on <code>order.json</code> carries the settled denomination of the order's financial values. MUST match the currency from the originating checkout session. Distinct from <code>context.currency</code> — this is order-level, not a hint. 2026-01-23 clients that don't read this field are unaffected.",
+    example: `<span class="comment">// Draft order response includes explicit currency</span>
+{
+  "id": "order_abc123",
+  "currency": "EUR",   <span class="comment">// NEW — ISO 4217, matches checkout currency</span>
+  "totals": [...],
+  "line_items": [...],
+  "fulfillment": { ... }
+}
+
+<span class="comment">// 2026-01-23 clients that don't read currency — no break</span>
+<span class="comment">// Clients displaying monetary values: prefer this field over context.currency</span>`
+  },
+  {
     id: 22,
     severity: "low",
     transports: ["REST", "MCP", "Embedded", "Tooling"],
-    title: "Extension schemas: `requires` version constraints",
+    title: "Discovery & Profile: `requires` version constraints",
     prs: ["#200"],
     summary: "A new optional <code>requires</code> field on extension schemas lets authors declare minimum (and optionally maximum) protocol and capability version constraints. Platform schema resolvers <strong>MUST</strong> check these constraints after fetching each extension — incompatible extensions must be excluded before composition. Implementations that skip this check will silently compose incompatible extensions.",
     example: `<span class="comment">// Draft extension schema — declares version requirements</span>
@@ -828,9 +925,12 @@ const PR_URLS = {
   "#196": "https://github.com/Universal-Commerce-Protocol/ucp/pull/196",
   "#200": "https://github.com/Universal-Commerce-Protocol/ucp/pull/200",
   "#203": "https://github.com/Universal-Commerce-Protocol/ucp/pull/203",
+  "#210": "https://github.com/Universal-Commerce-Protocol/ucp/pull/210",
   "#216": "https://github.com/Universal-Commerce-Protocol/ucp/pull/216",
   "#246": "https://github.com/Universal-Commerce-Protocol/ucp/pull/246",
   "#250": "https://github.com/Universal-Commerce-Protocol/ucp/pull/250",
+  "#261": "https://github.com/Universal-Commerce-Protocol/ucp/pull/261",
+  "#267": "https://github.com/Universal-Commerce-Protocol/ucp/pull/267",
 };
 
 let activeSeverity = "all";
